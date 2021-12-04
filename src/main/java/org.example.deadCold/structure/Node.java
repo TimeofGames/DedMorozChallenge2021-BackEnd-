@@ -6,15 +6,15 @@ public class Node {
     private final double latitude;
     private final double longitude;
     private final String population;
-    private final int grahpIndex;
+    private final int graphIndex;
 
-    public Node(String[] line) {
+    public Node(String[] line, int index) {
         this.index = line[0];
         this.name = line[1];
         this.latitude = Double.parseDouble(line[2]);
         this.longitude = Double.parseDouble(line[3]);
         this.population = line[4];
-        this.grahpIndex = Integer.parseInt(line[5]);
+        this.graphIndex = index;
     }
 
     public String getName() {
@@ -37,7 +37,7 @@ public class Node {
         return population;
     }
 
-    public int getGrahpIndex() {
-        return grahpIndex;
+    public int getGraphIndex() {
+        return graphIndex;
     }
 }
