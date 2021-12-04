@@ -2,64 +2,77 @@ package org.example.deadCold.structure;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.stream.DoubleStream;
 
 public class Ant {
-    private final double Q = 0;
     private int[] visits;
-    private ArrayList<double[][][]> graph;
+    private int[] way;
+    private ArrayList<ArrayList<double[]>> graph;
     private int startPoint;
     private final Node[] nodeArray;
 
-    public Ant(ArrayList<double[][][]> graph, int startPoint, Node[] nodeArray) {
+    public Ant(ArrayList<ArrayList<double[]>> graph, int startPoint, Node[] nodeArray) {
         this.graph = graph;
         this.startPoint = startPoint;
         this.visits = new int[graph.size()];
+        this.way = new int[graph.size()];
         this.nodeArray = nodeArray;
     }
 
-    public void run(int[] way) {
-        ArrayList<double[][]> line;
+    public void run() {
+        ArrayList<double[]> line;
         int k = startPoint;
         for (int i = 0; i < this.visits.length; i++) {
-            line = new ArrayList<>(Arrays.asList(graph.get(k)));
+            line = graph.get(k);
             visits[k] = 1;
-            k = Probability(line.get(i), nodeArray, visits);
+            k = nextNode(line, nodeArray);
             way[i] = k;
         }
     }
 
-    private int Probability(double[][] line, Node[] localNodesArray, int[] visits) {
-        int n = line.length;
-        int powFerro = 1;
-        int powDist = 1;
-        double[] desires = new double[n];
-        double[] P = new double[n];
-        double desire;
-        double sumDesires = 0;
-
-        for (int i = 0; i < n; i++) {
+    private double[] getDesire(ArrayList<double[]> line) {
+        int POW_PHEROMONE = 1;
+        int POW_DISTANCE = 1;
+        int DISTANCE_FACTOR = 1;
+        int size = line.size();
+        double[] desires = new double[size];
+        for (int i = 0; i < size; i++) {
             if (visits[i] == 0) {
-                desire = Math.pow(line[i][1], powFerro) * Math.pow(this.Q / line[i][0], powDist);
-                sumDesires += desire;
-                desires[i] = desire;
+                desires[i] = Math.pow(line.get(i)[1], POW_PHEROMONE) * Math.pow(DISTANCE_FACTOR / line.get(i)[0], POW_DISTANCE);
             }
         }
+        return desires;
+    }
 
-        for (int i = 0; i < n; i++) {
-            if (line[i][0] != 0) {
-                P[i] = desires[i] / sumDesires;
+    private double[] getProbabilities(ArrayList<double[]> line, double[] desires, double sumDesires) {
+        double[] probability = new double[line.size()];
+        for (int i = 0; i < line.size(); i++) {
+            if (line.get(i)[0] != 0) {
+                probability[i] = desires[i] / sumDesires;
             }
         }
+        return probability;
+    }
 
+    private int choiceNode(ArrayList<double[]> line, double[]probability){
         double casino = Math.random();
         double counterOfP = 0;
-        for (int i = 0; i < n; i++) {
-            if (counterOfP + P[i] < casino) {
-                counterOfP += P[i];
-            } else return localNodesArray[i].getGrahpIndex();
+        for (int i = 0; i < line.size(); i++) {
+            if (counterOfP + probability[i] < casino) {
+                counterOfP += probability[i];
+            } else return nodeArray[i].getGrahpIndex();
         }
         return -1;
     }
 
+    private int nextNode(ArrayList<double[]> line, Node[] localNodesArray) {
+        double[] desires;
+        double[] probability;
+        double sumDesires;
 
+        desires = getDesire(line);
+        sumDesires = DoubleStream.of(desires).sum();
+        probability = getProbabilities(line, desires, sumDesires);
+        return choiceNode(line,probability);
+    }
 }
