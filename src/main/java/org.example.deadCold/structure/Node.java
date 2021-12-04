@@ -6,6 +6,7 @@ public class Node {
     private final double latitude;
     private final double longitude;
     private final String population;
+    private final int grahpIndex;
 
     public Node(String[] line) {
         this.index = line[0];
@@ -13,6 +14,7 @@ public class Node {
         this.latitude = Double.parseDouble(line[2]);
         this.longitude = Double.parseDouble(line[3]);
         this.population = line[4];
+        this.grahpIndex = Integer.parseInt(line[5]);
     }
 
     public String getName() {
@@ -33,5 +35,9 @@ public class Node {
 
     public String getPopulation() {
         return population;
+    }
+
+    public int getGrahpIndex() {
+        return grahpIndex;
     }
 }
