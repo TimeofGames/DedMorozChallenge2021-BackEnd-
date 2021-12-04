@@ -15,7 +15,6 @@ public class Graph {
 
     private void generateMatrix(Expression distanceFounder) {
         double pheromone = 1;
-        int len = this.nodes.length;
         this.matrix = new ArrayList<>();
         for (Node value : this.nodes) {
             ArrayList<double[]> localList = new ArrayList<>();
@@ -44,6 +43,10 @@ public class Graph {
 
     public ArrayList<ArrayList<double[]>> getMatrix() {
         return matrix;
+    }
+
+    public void setMatrix(ArrayList<ArrayList<double[]>> matrix) {
+        this.matrix = matrix;
     }
 
     public double getShortestWay() {
