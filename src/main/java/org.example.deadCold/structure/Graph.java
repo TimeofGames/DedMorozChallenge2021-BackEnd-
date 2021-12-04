@@ -1,11 +1,10 @@
 package org.example.deadCold.structure;
 
-import java.util.Arrays;
-import java.util.function.UnaryOperator;
+import java.util.ArrayList;
 
 
 public class Graph {
-    private double[][][] matrix;
+    private ArrayList<ArrayList<double[]>> matrix;
     private final Node[] nodes;
     private double shortestWay;
 
@@ -17,12 +16,14 @@ public class Graph {
     private void generateMatrix(Expression distanceFounder) {
         double pheromone = 1;
         int len = this.nodes.length;
-        this.matrix = new double[len][len][2];
-        for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
-                this.matrix[i][j] = new double[]{distanceFounder.getDistance(new double[]{nodes[i].getLongitude(),
-                        nodes[i].getLatitude(), nodes[j].getLongitude(), nodes[j].getLatitude()}), pheromone};
+        this.matrix = new ArrayList<>();
+        for (Node value : this.nodes) {
+            ArrayList<double[]> localList = new ArrayList<>();
+            for (Node node : this.nodes) {
+                localList.add(new double[]{distanceFounder.getDistance(new double[]{value.getLongitude(),
+                        value.getLatitude(), node.getLongitude(), node.getLatitude()}), pheromone});
             }
+            this.matrix.add(localList);
         }
     }
 
@@ -30,7 +31,7 @@ public class Graph {
         int len = this.nodes.length;
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
-                System.out.printf("%2.2f ", this.matrix[i][j][1]);
+                System.out.printf("%2.2f ", this.matrix.get(i).get(j)[0]);
             }
             System.out.println();
         }
@@ -41,7 +42,7 @@ public class Graph {
         return nodes;
     }
 
-    public double[][][] getMatrix() {
+    public ArrayList<ArrayList<double[]>> getMatrix() {
         return matrix;
     }
 

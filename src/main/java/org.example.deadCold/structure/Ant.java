@@ -1,14 +1,13 @@
 package org.example.deadCold.structure;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.stream.DoubleStream;
 
 public class Ant {
-    private int[] visits;
-    private int[] way;
-    private ArrayList<ArrayList<double[]>> graph;
-    private int startPoint;
+    private final int[] visits;
+    private final int[] way;
+    private final ArrayList<ArrayList<double[]>> graph;
+    private final int startPoint;
     private final Node[] nodeArray;
 
     public Ant(ArrayList<ArrayList<double[]>> graph, int startPoint, Node[] nodeArray) {
@@ -19,15 +18,16 @@ public class Ant {
         this.nodeArray = nodeArray;
     }
 
-    public void run() {
+    public int[] run() {
         ArrayList<double[]> line;
         int k = startPoint;
         for (int i = 0; i < this.visits.length; i++) {
             line = graph.get(k);
             visits[k] = 1;
-            k = nextNode(line, nodeArray);
             way[i] = k;
+            k = nextNode(line);
         }
+        return way;
     }
 
     private double[] getDesire(ArrayList<double[]> line) {
@@ -60,12 +60,12 @@ public class Ant {
         for (int i = 0; i < line.size(); i++) {
             if (counterOfP + probability[i] < casino) {
                 counterOfP += probability[i];
-            } else return nodeArray[i].getGrahpIndex();
+            } else return nodeArray[i].getGraphIndex();
         }
         return -1;
     }
 
-    private int nextNode(ArrayList<double[]> line, Node[] localNodesArray) {
+    private int nextNode(ArrayList<double[]> line) {
         double[] desires;
         double[] probability;
         double sumDesires;
