@@ -30,7 +30,7 @@ public class Graph {
         int len = this.nodes.length;
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
-                System.out.printf("%2.2f ", this.matrix.get(i).get(j)[0]);
+                System.out.printf("%2.2f ", this.matrix.get(i).get(j)[1]);
             }
             System.out.println();
         }

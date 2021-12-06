@@ -29,9 +29,9 @@ public class Ant {
     }
 
     private double[] getDesire(ArrayList<double[]> line) {
-        final int POW_PHEROMONE = 1;
-        final int POW_DISTANCE = 1;
-        final int DISTANCE_FACTOR = 1;
+        final int POW_PHEROMONE = 2;
+        final int POW_DISTANCE = 3;
+        final int DISTANCE_FACTOR = 10;
         int size = line.size();
         double[] desires = new double[size];
         for (int i = 0; i < size; i++) {
