@@ -34,6 +34,7 @@ public class Graph {
         this.matrix.get(this.nodes.length).add(new double[]{0.0, pheromone});
     }
 
+
     @Override
     public String toString() {
         StringBuilder matrix = new StringBuilder();

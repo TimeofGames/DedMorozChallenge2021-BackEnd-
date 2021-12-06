@@ -7,18 +7,16 @@ public class Ant {
     private final int[] visits;
     private final int[] way;
     private final ArrayList<ArrayList<double[]>> graph;
-    private final int startPoint;
     private final Node[] nodeArray;
 
-    public Ant(ArrayList<ArrayList<double[]>> graph, int startPoint, Node[] nodeArray) {
+    public Ant(ArrayList<ArrayList<double[]>> graph, Node[] nodeArray) {
         this.graph = graph;
-        this.startPoint = startPoint;
         this.visits = new int[graph.size()];
         this.way = new int[graph.size()];
         this.nodeArray = nodeArray;
     }
 
-    public int[] run() {
+    public int[] run(int startPoint) {
         ArrayList<double[]> line;
         int k = startPoint;
         for (int i = 0; i < this.visits.length; i++) {
@@ -31,9 +29,9 @@ public class Ant {
     }
 
     private double[] getDesire(ArrayList<double[]> line) {
-        int POW_PHEROMONE = 1;
-        int POW_DISTANCE = 1;
-        int DISTANCE_FACTOR = 1;
+        final int POW_PHEROMONE = 2;
+        final int POW_DISTANCE = 3;
+        final int DISTANCE_FACTOR = 10;
         int size = line.size();
         double[] desires = new double[size];
         for (int i = 0; i < size; i++) {
