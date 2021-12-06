@@ -22,12 +22,7 @@ public class Hive {
         }
 
         evaporation();
-        for (int i = 0; i < graph.size(); i++) {
-            for (int j = 1; j < graph.size(); j++) {
-                graph.get(antsWays.get(i)[j-1]).get(antsWays.get(i)[j])[1] = updatePheromone(graph.get(antsWays.get(i)[j-1]).get(antsWays.get(i)[j])[1], waysDistance[i]);
-                graph.get(antsWays.get(j-1)[i]).get(antsWays.get(j)[i])[1] = graph.get(antsWays.get(i)[j-1]).get(antsWays.get(i)[j])[1];
-            }
-        }
+        updatePheromone(antsWays, waysDistance);
     }
 
     public double getDistance(int[] way) {
@@ -47,14 +42,20 @@ public class Hive {
         }
     }
 
-    public double updatePheromone(double pheromoneOnGraph, double distance) {
+    public void updatePheromone(ArrayList<int[]> antsWays, double[] distance) {
         final double PHEROMONE_FACTOR = 5;
         double newPheromone;
         double pheromone;
 
-        pheromone = PHEROMONE_FACTOR / distance;
-        newPheromone = pheromoneOnGraph + pheromone;
-        return newPheromone;
+
+        for (int i = 0; i < graph.size(); i++) {
+            for (int j = 1; j < graph.size(); j++) {
+                pheromone = PHEROMONE_FACTOR / distance[i];
+                newPheromone = graph.get(antsWays.get(i)[j-1]).get(antsWays.get(i)[j])[1] + pheromone;
+                graph.get(antsWays.get(i)[j-1]).get(antsWays.get(i)[j])[1] = newPheromone;
+                graph.get(antsWays.get(j-1)[i]).get(antsWays.get(j)[i])[1] = newPheromone;
+            }
+        }
     }
 
 }
