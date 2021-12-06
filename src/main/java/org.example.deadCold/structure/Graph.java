@@ -6,14 +6,17 @@ import java.util.ArrayList;
 public class Graph {
     private ArrayList<ArrayList<double[]>> matrix;
     private final Node[] nodes;
-    private double shortestWay;
+    private double firstShortestWay;
 
-    public Graph(Node[] nodes, Expression distanceFounder) {
+
+    private double secondShortestWay;
+
+    public Graph(Node[] nodes, Expression distanceFounder, int nodeToDuple) {
         this.nodes = nodes;
-        generateMatrix(distanceFounder);
+        generateMatrix(distanceFounder, nodeToDuple);
     }
 
-    private void generateMatrix(Expression distanceFounder) {
+    private void generateMatrix(Expression distanceFounder, int nodeToDuple) {
         double pheromone = 1;
         this.matrix = new ArrayList<>();
         for (Node value : this.nodes) {
@@ -24,17 +27,23 @@ public class Graph {
             }
             this.matrix.add(localList);
         }
+        this.matrix.add(matrix.get(nodeToDuple));
+        for (int i = 0; i < nodes.length; i++) {
+            this.matrix.get(i).add(this.matrix.get(nodeToDuple).get(i));
+        }
+        this.matrix.get(this.nodes.length).add(new double[]{0.0, pheromone});
     }
 
-    public void printGraph() {
-        int len = this.nodes.length;
-        for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
-                System.out.printf("%2.2f ", this.matrix.get(i).get(j)[0]);
+    @Override
+    public String toString() {
+        StringBuilder matrix = new StringBuilder();
+        for (int i = 0; i < nodes.length; i++) {
+            for (int j = 0; j < nodes.length; j++) {
+                matrix.append(this.matrix.get(i).get(j)[0]).append(' ');
             }
-            System.out.println();
+            matrix.append("\n");
         }
-        System.out.printf("Кратчайший путь имеет длинну %f\n", this.shortestWay);
+        return "matrix = " + matrix + "FirstShortestWay = " + firstShortestWay + ' ' + "SecondShortestWay = " + secondShortestWay;
     }
 
     public Node[] getNodes() {
@@ -49,11 +58,19 @@ public class Graph {
         this.matrix = matrix;
     }
 
-    public double getShortestWay() {
-        return shortestWay;
+    public void setFirstShortestWay(double firstShortestWay) {
+        this.firstShortestWay = firstShortestWay;
     }
 
-    public void setShortestWay(double shortestWay) {
-        this.shortestWay = shortestWay;
+    public void setSecondShortestWay(double secondShortestWay) {
+        this.secondShortestWay = secondShortestWay;
+    }
+
+    public double getFirstShortestWay() {
+        return firstShortestWay;
+    }
+
+    public double getSecondShortestWay() {
+        return secondShortestWay;
     }
 }

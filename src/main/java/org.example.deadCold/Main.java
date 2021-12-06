@@ -21,7 +21,7 @@ public class Main {
             nextLine = reader.readNext();
             arrayNodes[i] = new Node(nextLine, i);
         }
-        graph = new Graph(arrayNodes, new FlatDistanceFounder());
-        graph.printGraph();
+        graph = new Graph(arrayNodes, new FlatDistanceFounder(),0);
+        System.out.println(graph);
     }
 }
