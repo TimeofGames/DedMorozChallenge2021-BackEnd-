@@ -22,6 +22,7 @@ public class Main {
             nextLine = reader.readNext();
             arrayNodes[i] = new Node(nextLine, i);
         }
+
         graph = new Graph(arrayNodes, new FlatDistanceFounder());
         graph.printGraph();
         Hive hive = new Hive(graph.getMatrix(), arrayNodes);
@@ -29,6 +30,5 @@ public class Main {
             hive.fellowBrothers();
         }
         graph.printGraph();
-
     }
 }
