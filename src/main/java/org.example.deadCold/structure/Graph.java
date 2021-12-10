@@ -7,8 +7,6 @@ public class Graph {
     private ArrayList<ArrayList<double[]>> matrix;
     private final Node[] nodes;
     private double firstShortestWay;
-
-
     private double secondShortestWay;
 
     public Graph(Node[] nodes, Expression distanceFounder, int nodeToDuple) {
@@ -45,6 +43,10 @@ public class Graph {
             matrix.append("\n");
         }
         return "matrix = " + matrix + "FirstShortestWay = " + firstShortestWay + ' ' + "SecondShortestWay = " + secondShortestWay;
+    }
+
+    public int length(){
+        return nodes.length;
     }
 
     public Node[] getNodes() {

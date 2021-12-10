@@ -4,13 +4,11 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.example.deadCold.structure.FlatDistanceFounder;
 import org.example.deadCold.structure.Graph;
-import org.example.deadCold.structure.Hive;
 import org.example.deadCold.structure.Node;
-
+import org.example.deadCold.structure.SocketServer;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws IOException, CsvValidationException {
@@ -23,12 +21,10 @@ public class Main {
             arrayNodes[i] = new Node(nextLine, i);
         }
 
-        graph = new Graph(arrayNodes, new FlatDistanceFounder());
-        graph.printGraph();
-        Hive hive = new Hive(graph.getMatrix(), arrayNodes);
-        for (int i = 0; i < 1000; i++) {
-            hive.fellowBrothers();
-        }
-        graph.printGraph();
+        graph = new Graph(arrayNodes, new FlatDistanceFounder(), 0);
+        System.out.println(graph);
+        SocketServer server = new SocketServer();
+        server.sendData(graph);
+        server.finish();
     }
 }
