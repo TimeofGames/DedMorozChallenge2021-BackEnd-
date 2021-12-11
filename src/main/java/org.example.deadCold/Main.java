@@ -10,6 +10,7 @@ import org.example.deadCold.structure.Node;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Main {
@@ -17,18 +18,23 @@ public class Main {
         CSVReader reader = new CSVReader(new FileReader("src\\data\\test.csv"));
         Graph graph;
         String[] nextLine;
-        Node[] arrayNodes = new Node[20];
+        ArrayList<Node> arrayNodes = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             nextLine = reader.readNext();
-            arrayNodes[i] = new Node(nextLine, i);
+            arrayNodes.add(i, new Node(nextLine, i));
         }
 
-        graph = new Graph(arrayNodes, new FlatDistanceFounder());
-        graph.printGraph();
-        Hive hive = new Hive(graph.getMatrix(), arrayNodes);
-        for (int i = 0; i < 1000; i++) {
-            hive.fellowBrothers();
+        int nodeToDuple = 5;
+        double[] shortestWays = new double[2];
+        graph = new Graph(arrayNodes, new FlatDistanceFounder(), nodeToDuple);
+        System.out.println(graph);
+        Hive hive = new Hive(graph.getMatrix(), arrayNodes, nodeToDuple);
+        for (int i = 0; i < 100; i++) {
+           hive.fellowBrothers(shortestWays);
         }
-        graph.printGraph();
+        graph.setFirstShortestWay(shortestWays[0]);
+        graph.setSecondShortestWay(shortestWays[1]);
+
+        System.out.println(graph);
     }
 }

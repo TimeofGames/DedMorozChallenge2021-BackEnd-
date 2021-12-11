@@ -5,13 +5,13 @@ import java.util.ArrayList;
 
 public class Graph {
     private ArrayList<ArrayList<double[]>> matrix;
-    private final Node[] nodes;
+    private final ArrayList<Node> nodes;
     private double firstShortestWay;
 
 
     private double secondShortestWay;
 
-    public Graph(Node[] nodes, Expression distanceFounder, int nodeToDuple) {
+    public Graph(ArrayList<Node> nodes, Expression distanceFounder, int nodeToDuple) {
         this.nodes = nodes;
         generateMatrix(distanceFounder, nodeToDuple);
     }
@@ -28,26 +28,28 @@ public class Graph {
             this.matrix.add(localList);
         }
         this.matrix.add(matrix.get(nodeToDuple));
-        for (int i = 0; i < nodes.length; i++) {
+        for (int i = 0; i < nodes.size(); i++) {
             this.matrix.get(i).add(this.matrix.get(nodeToDuple).get(i));
         }
-        this.matrix.get(this.nodes.length).add(new double[]{0.0, pheromone});
+        this.matrix.get(this.nodes.size()).add(new double[]{0.0, pheromone});
+
+        this.nodes.add(new Node(this.nodes.get(nodeToDuple).toString().split(" "), this.nodes.size()));
     }
 
 
     @Override
     public String toString() {
         StringBuilder matrix = new StringBuilder();
-        for (int i = 0; i < nodes.length; i++) {
-            for (int j = 0; j < nodes.length; j++) {
-                matrix.append(this.matrix.get(i).get(j)[0]).append(' ');
+        for (int i = 0; i < nodes.size(); i++) {
+            for (int j = 0; j < nodes.size(); j++) {
+                matrix.append(this.matrix.get(i).get(j)[1]).append(' ');
             }
             matrix.append("\n");
         }
         return "matrix = " + matrix + "FirstShortestWay = " + firstShortestWay + ' ' + "SecondShortestWay = " + secondShortestWay;
     }
 
-    public Node[] getNodes() {
+    public ArrayList<Node> getNodes() {
         return nodes;
     }
 

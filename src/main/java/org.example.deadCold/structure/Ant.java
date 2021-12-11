@@ -7,11 +7,11 @@ public class Ant {
     private final int[] visits;
     private final int[] way;
     private final ArrayList<ArrayList<double[]>> graph;
-    private final Node[] nodeArray;
+    private final ArrayList<Node> nodeArray;
 
-    public Ant(ArrayList<ArrayList<double[]>> graph, Node[] nodeArray) {
+    public Ant(ArrayList<ArrayList<double[]>> graph, ArrayList<Node> nodeArray) {
         this.graph = graph;
-        this.visits = new int[graph.size()];
+        this.visits = new int[nodeArray.size()];
         this.way = new int[graph.size()];
         this.nodeArray = nodeArray;
     }
@@ -32,10 +32,10 @@ public class Ant {
         final int POW_PHEROMONE = 2;
         final int POW_DISTANCE = 3;
         final int DISTANCE_FACTOR = 10;
-        int size = line.size();
+        int size = nodeArray.size();
         double[] desires = new double[size];
         for (int i = 0; i < size; i++) {
-            if (visits[i] == 0) {
+            if (visits[i] == 0 && line.get(i)[0] != 0) {
                 desires[i] = Math.pow(line.get(i)[1], POW_PHEROMONE) * Math.pow(DISTANCE_FACTOR / line.get(i)[0], POW_DISTANCE);
             }
         }
@@ -58,7 +58,7 @@ public class Ant {
         for (int i = 0; i < line.size(); i++) {
             if (counterOfP + probability[i] < casino) {
                 counterOfP += probability[i];
-            } else return nodeArray[i].getGraphIndex();
+            } else return nodeArray.get(i).getGraphIndex();
         }
         return -1;
     }
