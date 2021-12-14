@@ -18,7 +18,6 @@ public class Main {
         Graph graph;
         String[] nextLine;
         ArrayList<Node> arrayNodes = new ArrayList<>();
-        long clock;
         for (int i = 0; i < 1112; i++) {
             nextLine = reader.readNext();
             arrayNodes.add(i, new Node(nextLine, i));
@@ -28,8 +27,9 @@ public class Main {
         double[] shortestWays = new double[2];
         graph = new Graph(arrayNodes, new DistanceFounder(), nodeToDuple);
         Hive hive = new Hive(graph.getMatrix(), arrayNodes, nodeToDuple);
+        System.out.println(Runtime.getRuntime().availableProcessors()*2);
         for (int i = 0; i < 200; i++) {
-            clock = System.currentTimeMillis();
+            long clock = System.currentTimeMillis();
             hive.fellowBrothers(shortestWays);
             System.out.println("Time on operation " + (System.currentTimeMillis() - clock) / 1000 + "s");
         }

@@ -1,16 +1,17 @@
 package org.example.deadCold.structure;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class AntThread implements Callable<int[]> {
 
-    ArrayList<ArrayList<double[]>> graph;
+    List<List<MatrixItem>> graph;
     ArrayList<Node> nodeArray;
     int[] antWay;
     int arg;
 
-    public AntThread(ArrayList<ArrayList<double[]>> graph, ArrayList<Node> nodeArray, int arg) {
+    public AntThread(List<List<MatrixItem>> graph, ArrayList<Node> nodeArray, int arg) {
         this.graph = graph;
         this.nodeArray = nodeArray;
         this.arg = arg;

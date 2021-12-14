@@ -3,46 +3,69 @@ package org.example.deadCold.structure;
 import com.rainerhahnekamp.sneakythrow.Sneaky;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 public class Hive {
-    private final ArrayList<ArrayList<double[]>> graph;
+    public List<List<MatrixItem>> graph;
     private final ArrayList<Node> nodeArray;
     private int nodeToDuple;
 
-    public Hive(ArrayList<ArrayList<double[]>> graph, ArrayList<Node> nodeArray, int nodeToDuple) {
+    public Hive(List<List<MatrixItem>> graph, ArrayList<Node> nodeArray, int nodeToDuple) {
         this.graph = graph;
         this.nodeArray = nodeArray;
         this.nodeToDuple = nodeToDuple;
     }
 
     public void fellowBrothers(double[] shortestWays) throws Exception {
-        int size = nodeArray.size();
-        List<Future<int[]>> antsWaysFuture = new ArrayList<>();
-        double[] waysDistance = new double[size];
-        ArrayList<AntThread> ants = new ArrayList<AntThread>();
-        ExecutorService service = Executors.newFixedThreadPool(5);
-        for (int i = 0; i < size; i++) {
-            ants.add(new AntThread(graph,nodeArray,i));
-        }
-        antsWaysFuture = service.invokeAll(ants);
-        service.shutdown();
+        List<Double> waysDistance;
+        ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        List<int[]> antsWays = getAntsWays(service);
 
-        List<int[]> antsWays = antsWaysFuture.stream()
-                .map(f -> Sneaky.sneak(f::get))
+        waysDistance = antsWays.stream()
+                .parallel()
+                .map(row -> getDistance(graph, row))
                 .toList();
 
-        for (int i = 0; i < size; i++) {
-            waysDistance[i] = getDistance(graph, antsWays.get(i));
-        }
-        System.out.println("Shortest distance " + waysDistance[minDistance(waysDistance)] + "km");
+        System.out.println("Shortest distance " + waysDistance.get(minDistance(waysDistance)) + "km");
+
         evaporation();
-        updatePheromone(antsWays, waysDistance);
+        updatePheromone(service, antsWays, waysDistance);
+        updatePheromoneElite(antsWays.get(minDistance(waysDistance)),waysDistance.get(minDistance(waysDistance)));
+        service.shutdown();
+    }
+
+    private void updatePheromoneElite(int[] antWay, double wayDistance){
+        double PHEROMONE_FACTOR = 10000;
+        double pheromone = PHEROMONE_FACTOR / wayDistance;
+        for (int j = 1; j<antWay.length; j++){
+            synchronized (graph.get(antWay[j-1]).get(antWay[j])){
+                graph.get(antWay[j-1]).get(antWay[j]).pheromone += pheromone;}
+        }
+    }
+
+    private void updatePheromone(ExecutorService service, List<int[]> antsWays, List<Double> waysDistance) throws InterruptedException {
+        List<UpdatePheromoneThread> updatePheromoneTasks = new ArrayList<UpdatePheromoneThread>();
+        for (int i = 0; i < antsWays.size(); i++) {
+            updatePheromoneTasks.add(new UpdatePheromoneThread(antsWays.get(i), waysDistance.get(i), graph));
+        }
+        service.invokeAll(updatePheromoneTasks);
+    }
+
+    private List<int[]> getAntsWays(ExecutorService service) throws InterruptedException {
+        ArrayList<AntThread> ants = new ArrayList<AntThread>();
+        int size = nodeArray.size();
+        List<Future<int[]>> antsWaysFuture;
+        for (int i = 0; i < size; i++) {
+            ants.add(new AntThread(graph, nodeArray, i));
+        }
+        antsWaysFuture = service.invokeAll(ants);
+
+        return antsWaysFuture.stream()
+                .map(f -> Sneaky.sneak(f::get))
+                .toList();
     }
 
     public double[] shortestWays(int[] way, double distance, double[] shortestWays) {
@@ -69,48 +92,31 @@ public class Hive {
     public double getShortDistance(int[] way, int fistNode, int secondNode) {
         double sumWays = 0;
         for (int i = fistNode + 1; i <= secondNode; i++) {
-            sumWays += graph.get(way[i - 1]).get(way[i])[0];
+            sumWays += graph.get(way[i - 1]).get(way[i]).distance;
         }
         return sumWays;
     }
 
-    public static double getDistance(ArrayList<ArrayList<double[]>> graph, int[] way) {
+    public static double getDistance(List<List<MatrixItem>> graph, int[] way) {
         double sumWays = 0;
         for (int i = 1; i < way.length; i++) {
-            sumWays += graph.get(way[i - 1]).get(way[i])[0];
+            sumWays += graph.get(way[i - 1]).get(way[i]).distance;
         }
         return sumWays;
     }
 
     public void evaporation() {
         final double AFTER_EVAPORATION = 0.64;
-        for (int i = 0; i < graph.size(); i++) {
-            for (int j = 0; j < graph.size(); j++) {
-                graph.get(i).get(j)[1] = AFTER_EVAPORATION * graph.get(i).get(j)[1];
-            }
-        }
+        graph = graph.stream()
+                .parallel()
+                .map(row -> row.stream().peek(item -> item.pheromone = item.pheromone * AFTER_EVAPORATION).toList())
+                .toList();
     }
 
-    public void updatePheromone(List<int[]> antsWays, double[] distance) {
-        final double PHEROMONE_FACTOR = 100;
-        double newPheromone;
-        double pheromone;
-
-        for (int i = 0; i < graph.size(); i++) {
-            for (int j = 1; j < graph.size(); j++) {
-                pheromone = PHEROMONE_FACTOR / distance[i];
-                newPheromone = graph.get(antsWays.get(i)[j - 1]).get(antsWays.get(i)[j])[1] + pheromone;
-                graph.get(antsWays.get(i)[j - 1]).get(antsWays.get(i)[j])[1] = newPheromone;
-            }
-        }
-    }
-
-    public int minDistance(double[] waysDistance) {
+    public int minDistance(List<Double> waysDistance) {
         int k = 0;
-        double minValue = Double.MAX_VALUE;
-        for (int i = 0; i < waysDistance.length; i++) {
-            if (waysDistance[i] <= minValue) {
-                minValue = waysDistance[i];
+        for (int i = 0; i < waysDistance.size(); i++) {
+            if (waysDistance.get(i) <= waysDistance.get(k)) {
                 k = i;
             }
         }
