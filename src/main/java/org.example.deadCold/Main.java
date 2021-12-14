@@ -2,39 +2,38 @@ package org.example.deadCold;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-import org.example.deadCold.structure.FlatDistanceFounder;
-import org.example.deadCold.structure.Graph;
-import org.example.deadCold.structure.Hive;
-import org.example.deadCold.structure.Node;
+import org.example.deadCold.structure.*;
 
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Main {
-    public static void main(String[] args) throws IOException, CsvValidationException {
-        CSVReader reader = new CSVReader(new FileReader("src\\data\\test.csv"));
+    public static void main(String[] args) throws Exception {
+        CSVReader reader = new CSVReader(new FileReader("src\\data\\Cities.csv"));
+        reader.readNext();
         Graph graph;
         String[] nextLine;
         ArrayList<Node> arrayNodes = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        long clock;
+        for (int i = 0; i < 1112; i++) {
             nextLine = reader.readNext();
             arrayNodes.add(i, new Node(nextLine, i));
         }
 
         int nodeToDuple = 5;
         double[] shortestWays = new double[2];
-        graph = new Graph(arrayNodes, new FlatDistanceFounder(), nodeToDuple);
-        System.out.println(graph);
+        graph = new Graph(arrayNodes, new DistanceFounder(), nodeToDuple);
         Hive hive = new Hive(graph.getMatrix(), arrayNodes, nodeToDuple);
-        for (int i = 0; i < 100; i++) {
-           hive.fellowBrothers(shortestWays);
+        for (int i = 0; i < 200; i++) {
+            clock = System.currentTimeMillis();
+            hive.fellowBrothers(shortestWays);
+            System.out.println("Time on operation " + (System.currentTimeMillis() - clock) / 1000 + "s");
         }
         graph.setFirstShortestWay(shortestWays[0]);
         graph.setSecondShortestWay(shortestWays[1]);
-
-        System.out.println(graph);
     }
 }
