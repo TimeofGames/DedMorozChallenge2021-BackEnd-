@@ -1,13 +1,14 @@
 package org.example.deadCold.structure;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import org.json.simple.JSONObject;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class SocketServer {
-    private static Socket clientSocket;
+    private Socket clientSocket;
     private ServerSocket server;
 
     public SocketServer() throws IOException {
@@ -21,12 +22,26 @@ public class SocketServer {
         System.out.println("Подключён: "+ clientSocket.getInetAddress());
     }
 
-    public void sendData(String data) throws IOException {
-        BufferedWriter stringOut = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-        stringOut.write(data);
-        stringOut.flush();
-        stringOut.close();
-        System.out.println("Выведено: " + data);
+    public void sendData(Graph graph) throws IOException {
+        JSONObject objectToOut = new JSONObject();
+        ArrayList<ArrayList<double[]>> matrix = graph.getMatrix();
+        ArrayList<ArrayList<Double>> matrixToOut = new ArrayList<>();
+
+        for (int i = 0;i<matrix.size();i++){
+            ArrayList<Double> localArray = new ArrayList<>();
+            for (int j = 0;j<matrix.size();j++){
+                localArray.add(matrix.get(i).get(j)[1]);
+            }
+            matrixToOut.add(localArray);
+        }
+        objectToOut.put("Matrix", matrixToOut);
+        objectToOut.put("FirstShortestWay",graph.getFirstShortestWay());
+        objectToOut.put("SecondShortestWay",graph.getSecondShortestWay());
+        PrintStream stream = new PrintStream(clientSocket.getOutputStream());
+        System.out.println(objectToOut);
+        stream.println(objectToOut);
+        stream.flush();
+        stream.close();
     }
 
     public void finish() throws IOException {

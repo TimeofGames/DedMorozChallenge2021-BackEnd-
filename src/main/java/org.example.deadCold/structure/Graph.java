@@ -61,6 +61,11 @@ public class Graph {
         return "matrix = " + matrix + "FirstShortestWay = " + firstShortestWay + ' ' + "SecondShortestWay = " + secondShortestWay;
     }
 
+
+    public int length(){
+        return nodes.length;
+    }
+
     public ArrayList<Node> getNodes() {
         return nodes;
     }
