@@ -63,7 +63,7 @@ public class Graph {
 
 
     public int length(){
-        return nodes.length;
+        return nodes.size();
     }
 
     public ArrayList<Node> getNodes() {

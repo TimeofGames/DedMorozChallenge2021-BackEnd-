@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SocketServer {
     private Socket clientSocket;
@@ -24,13 +25,13 @@ public class SocketServer {
 
     public void sendData(Graph graph) throws IOException {
         JSONObject objectToOut = new JSONObject();
-        ArrayList<ArrayList<double[]>> matrix = graph.getMatrix();
-        ArrayList<ArrayList<Double>> matrixToOut = new ArrayList<>();
+        List<List<MatrixItem>> matrix = graph.getMatrix();
+        List<List<Double>> matrixToOut = new ArrayList<>();
 
         for (int i = 0;i<matrix.size();i++){
-            ArrayList<Double> localArray = new ArrayList<>();
+            List<Double> localArray = new ArrayList<>();
             for (int j = 0;j<matrix.size();j++){
-                localArray.add(matrix.get(i).get(j)[1]);
+                localArray.add(matrix.get(i).get(j).pheromone);
             }
             matrixToOut.add(localArray);
         }

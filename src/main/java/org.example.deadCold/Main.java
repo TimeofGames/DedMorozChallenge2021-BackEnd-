@@ -32,10 +32,10 @@ public class Main {
         graph = new Graph(arrayNodes, new DistanceFounder(), nodeToDuple);
         Hive hive = new Hive(graph.getMatrix(), arrayNodes, nodeToDuple, graph.getMultiDistanceDesire());
         System.out.println(Runtime.getRuntime().availableProcessors() * 2);
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 1000; i++) {
             long clock = System.currentTimeMillis();
             hive.fellowBrothers(shortestWays);
-            System.out.println("Time on operation " + (System.currentTimeMillis() - clock) + "ìs");
+            System.out.println("Time on operation " + (System.currentTimeMillis() - clock) + "ms\n\n");
         }
         graph.setFirstShortestWay(shortestWays[0]);
         graph.setSecondShortestWay(shortestWays[1]);
