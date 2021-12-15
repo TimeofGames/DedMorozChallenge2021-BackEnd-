@@ -3,20 +3,29 @@ package org.example.deadCold.structure;
 import com.rainerhahnekamp.sneakythrow.Sneaky;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 public class Hive {
     public List<List<MatrixItem>> graph;
+    public List<List<Double>> multiDistanceDesire;
+    private int[] shortestWay;
     private final ArrayList<Node> nodeArray;
     private int nodeToDuple;
 
-    public Hive(List<List<MatrixItem>> graph, ArrayList<Node> nodeArray, int nodeToDuple) {
+    public Hive(List<List<MatrixItem>> graph, ArrayList<Node> nodeArray, int nodeToDuple, List<List<Double>> multiDistanceDesire) {
         this.graph = graph;
         this.nodeArray = nodeArray;
         this.nodeToDuple = nodeToDuple;
+        this.multiDistanceDesire = multiDistanceDesire;
+        shortestWay = new int[nodeArray.size()];
+        for (int i = 0; i<nodeArray.size();i++){
+            shortestWay[i] = i;
+        }
     }
 
     public void fellowBrothers(double[] shortestWays) throws Exception {
@@ -29,20 +38,21 @@ public class Hive {
                 .map(row -> getDistance(graph, row))
                 .toList();
 
-        System.out.println("Shortest distance " + waysDistance.get(minDistance(waysDistance)) + "km");
-
         evaporation();
         updatePheromone(service, antsWays, waysDistance);
-        updatePheromoneElite(antsWays.get(minDistance(waysDistance)),waysDistance.get(minDistance(waysDistance)));
+        minDistance(antsWays.get(minDistanceThread(waysDistance)));
+        updatePheromoneElite(shortestWay,getDistance(graph, shortestWay));
         service.shutdown();
+        System.out.println("Shortest distance " + getDistance(graph,shortestWay) + "km");
     }
 
-    private void updatePheromoneElite(int[] antWay, double wayDistance){
-        double PHEROMONE_FACTOR = 10000;
+    private void updatePheromoneElite(int[] antWay, double wayDistance) {
+        double PHEROMONE_FACTOR = 100000;
         double pheromone = PHEROMONE_FACTOR / wayDistance;
-        for (int j = 1; j<antWay.length; j++){
-            synchronized (graph.get(antWay[j-1]).get(antWay[j])){
-                graph.get(antWay[j-1]).get(antWay[j]).pheromone += pheromone;}
+        for (int j = 1; j < antWay.length; j++) {
+            synchronized (graph.get(antWay[j - 1]).get(antWay[j])) {
+                graph.get(antWay[j - 1]).get(antWay[j]).pheromone += pheromone;
+            }
         }
     }
 
@@ -59,7 +69,7 @@ public class Hive {
         int size = nodeArray.size();
         List<Future<int[]>> antsWaysFuture;
         for (int i = 0; i < size; i++) {
-            ants.add(new AntThread(graph, nodeArray, i));
+            ants.add(new AntThread(graph, nodeArray, i, multiDistanceDesire));
         }
         antsWaysFuture = service.invokeAll(ants);
 
@@ -113,7 +123,7 @@ public class Hive {
                 .toList();
     }
 
-    public int minDistance(List<Double> waysDistance) {
+    public int minDistanceThread(List<Double> waysDistance) {
         int k = 0;
         for (int i = 0; i < waysDistance.size(); i++) {
             if (waysDistance.get(i) <= waysDistance.get(k)) {
@@ -123,4 +133,9 @@ public class Hive {
         return k;
     }
 
+    private void minDistance(int[] shortestWay){
+        if (getDistance(graph, shortestWay) < getDistance(graph, this.shortestWay)){
+            this.shortestWay = shortestWay;
+        }
+    }
 }

@@ -26,12 +26,12 @@ public class Main {
         int nodeToDuple = 5;
         double[] shortestWays = new double[2];
         graph = new Graph(arrayNodes, new DistanceFounder(), nodeToDuple);
-        Hive hive = new Hive(graph.getMatrix(), arrayNodes, nodeToDuple);
-        System.out.println(Runtime.getRuntime().availableProcessors()*2);
+        Hive hive = new Hive(graph.getMatrix(), arrayNodes, nodeToDuple, graph.getMultiDistanceDesire());
+        System.out.println(Runtime.getRuntime().availableProcessors() * 2);
         for (int i = 0; i < 200; i++) {
             long clock = System.currentTimeMillis();
             hive.fellowBrothers(shortestWays);
-            System.out.println("Time on operation " + (System.currentTimeMillis() - clock) / 1000 + "s");
+            System.out.println("Time on operation " + (System.currentTimeMillis() - clock) + "ìs");
         }
         graph.setFirstShortestWay(shortestWays[0]);
         graph.setSecondShortestWay(shortestWays[1]);

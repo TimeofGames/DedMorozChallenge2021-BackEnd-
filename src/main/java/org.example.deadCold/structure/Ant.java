@@ -8,36 +8,34 @@ public class Ant {
     private final int[] visits;
     private final int[] way;
     private final List<List<MatrixItem>> graph;
+    private final List<List<Double>> multiDistanceDesire;
     private final ArrayList<Node> nodeArray;
 
-    public Ant(List<List<MatrixItem>> graph, ArrayList<Node> nodeArray) {
+    public Ant(List<List<MatrixItem>> graph, ArrayList<Node> nodeArray, List<List<Double>> multiDistanceDesire) {
         this.graph = graph;
         this.visits = new int[nodeArray.size()];
         this.way = new int[graph.size()];
         this.nodeArray = nodeArray;
+        this.multiDistanceDesire = multiDistanceDesire;
     }
 
     public int[] run(int startPoint) {
-        List<MatrixItem> line;
         int k = startPoint;
         for (int i = 0; i < this.visits.length; i++) {
-            line = graph.get(k);
             visits[k] = 1;
             way[i] = k;
-            k = nextNode(line);
+            k = nextNode(graph.get(k), multiDistanceDesire.get(k));
         }
         return way;
     }
 
-    private double[] getDesire(List<MatrixItem> line) {
+    private double[] getDesire(List<MatrixItem> line, List<Double> multiDistanceDesire) {
         final int POW_PHEROMONE = 2;
-        final int POW_DISTANCE = 3;
-        final int DISTANCE_FACTOR = 10;
         int size = nodeArray.size();
         double[] desires = new double[size];
         for (int i = 0; i < size; i++) {
             if (visits[i] == 0 && line.get(i).distance != 0) {
-                desires[i] = Math.pow(line.get(i).pheromone, POW_PHEROMONE) * Math.pow(DISTANCE_FACTOR / line.get(i).distance, POW_DISTANCE);
+                desires[i] = Math.pow(line.get(i).pheromone, POW_PHEROMONE) * multiDistanceDesire.get(i);
             }
         }
         return desires;
@@ -53,7 +51,7 @@ public class Ant {
         return probability;
     }
 
-    private int choiceNode(List<MatrixItem> line, double[]probability){
+    private int choiceNode(List<MatrixItem> line, double[] probability) {
         double casino = Math.random();
         double counterOfProbability = 0;
         for (int i = 0; i < line.size(); i++) {
@@ -64,14 +62,14 @@ public class Ant {
         return -1;
     }
 
-    private int nextNode(List<MatrixItem> line) {
+    private int nextNode(List<MatrixItem> line, List<Double> multiDistanceDesire) {
         double[] desires;
         double[] probability;
         double sumDesires;
 
-        desires = getDesire(line);
+        desires = getDesire(line, multiDistanceDesire);
         sumDesires = DoubleStream.of(desires).sum();
         probability = getProbabilities(line, desires, sumDesires);
-        return choiceNode(line,probability);
+        return choiceNode(line, probability);
     }
 }
