@@ -17,6 +17,11 @@ public class Node {
         this.graphIndex = index;
     }
 
+    @Override
+    public String toString() {
+        return name + ' ' + index + ' ' + latitude + ' ' + longitude + ' ' + population;
+    }
+
     public String getName() {
         return name;
     }
