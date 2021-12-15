@@ -1,59 +1,104 @@
 package org.example.deadCold.structure;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Graph {
-    private ArrayList<ArrayList<double[]>> matrix;
-    private final Node[] nodes;
-    private double shortestWay;
+    private List<List<MatrixItem>> matrix;
+    private List<List<Double>> multiDistanceDesire = new ArrayList<>();
+    private final ArrayList<Node> nodes;
+    private double firstShortestWay;
+    private double secondShortestWay;
 
-    public Graph(Node[] nodes, Expression distanceFounder) {
+    public Graph(ArrayList<Node> nodes, Expression distanceFounder, int nodeToDuple) {
         this.nodes = nodes;
-        generateMatrix(distanceFounder);
+        generateMatrix(distanceFounder, nodeToDuple);
+        cookDistanceDesire();
     }
 
-    private void generateMatrix(Expression distanceFounder) {
+    private void generateMatrix(Expression distanceFounder, int nodeToDuple) {
         double pheromone = 1;
         this.matrix = new ArrayList<>();
         for (Node value : this.nodes) {
-            ArrayList<double[]> localList = new ArrayList<>();
+            ArrayList<MatrixItem> localList = new ArrayList<>();
             for (Node node : this.nodes) {
-                localList.add(new double[]{distanceFounder.getDistance(new double[]{value.getLongitude(),
-                        value.getLatitude(), node.getLongitude(), node.getLatitude()}), pheromone});
+                localList.add(new MatrixItem(distanceFounder.getDistance(new double[]{value.getLongitude(),
+                        value.getLatitude(), node.getLongitude(), node.getLatitude()}), pheromone));
             }
             this.matrix.add(localList);
         }
-    }
-
-    public void printGraph() {
-        int len = this.nodes.length;
-        for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
-                System.out.printf("%2.2f ", this.matrix.get(i).get(j)[0]);
-            }
-            System.out.println();
+        this.matrix.add(matrix.get(nodeToDuple));
+        for (int i = 0; i < nodes.size(); i++) {
+            this.matrix.get(i).add(this.matrix.get(nodeToDuple).get(i));
         }
-        System.out.printf("Кратчайший путь имеет длинну %f\n", this.shortestWay);
+        this.matrix.get(this.nodes.size()).add(new MatrixItem(0.0, pheromone));
+
+        this.nodes.add(new Node(this.nodes.get(nodeToDuple).toString().split(" "), this.nodes.size()));
     }
 
-    public Node[] getNodes() {
+    private void cookDistanceDesire() {
+        final int POW_DISTANCE = 3;
+        final int DISTANCE_FACTOR = 10;
+        for (int i = 0; i < matrix.size(); i++) {
+            List<Double> localList = new ArrayList<>();
+            for (int j = 0; j < matrix.size(); j++) {
+                localList.add(Math.pow(DISTANCE_FACTOR / matrix.get(i).get(j).distance, POW_DISTANCE));
+            }
+            this.multiDistanceDesire.add(localList);
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder matrix = new StringBuilder();
+        for (int i = 0; i < nodes.size(); i++) {
+            for (int j = 0; j < nodes.size(); j++) {
+                matrix.append(this.matrix.get(i).get(j).pheromone).append(' ');
+            }
+            matrix.append("\n");
+        }
+        return "matrix = " + matrix + "FirstShortestWay = " + firstShortestWay + ' ' + "SecondShortestWay = " + secondShortestWay;
+    }
+
+
+    public int length(){
+        return nodes.length;
+    }
+
+    public ArrayList<Node> getNodes() {
         return nodes;
     }
 
-    public ArrayList<ArrayList<double[]>> getMatrix() {
+    public List<List<MatrixItem>> getMatrix() {
         return matrix;
     }
 
-    public void setMatrix(ArrayList<ArrayList<double[]>> matrix) {
+    public void setMatrix(List<List<MatrixItem>> matrix) {
         this.matrix = matrix;
     }
 
-    public double getShortestWay() {
-        return shortestWay;
+    public void setFirstShortestWay(double firstShortestWay) {
+        this.firstShortestWay = firstShortestWay;
     }
 
-    public void setShortestWay(double shortestWay) {
-        this.shortestWay = shortestWay;
+    public void setSecondShortestWay(double secondShortestWay) {
+        this.secondShortestWay = secondShortestWay;
+    }
+
+    public double getFirstShortestWay() {
+        return firstShortestWay;
+    }
+
+    public double getSecondShortestWay() {
+        return secondShortestWay;
+    }
+
+    public List<List<Double>> getMultiDistanceDesire() {
+        return multiDistanceDesire;
+    }
+
+    public void setMultiDistanceDesire(List<List<Double>> multiDistanceDesire) {
+        this.multiDistanceDesire = multiDistanceDesire;
     }
 }
