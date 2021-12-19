@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 
 public class Main {
@@ -27,18 +28,24 @@ public class Main {
         }
 
 
-        int nodeToDuple = 5;
-        double[] shortestWays = new double[2];
+        int nodeToDuple = getNodeByName("Великий Устюг", arrayNodes);
         graph = new Graph(arrayNodes, new DistanceFounder(), nodeToDuple);
-        Hive hive = new Hive(graph.getMatrix(), arrayNodes, nodeToDuple, graph.getMultiDistanceDesire());
-        System.out.println(Runtime.getRuntime().availableProcessors() * 2);
+        Hive hive = new Hive(graph);
+        System.out.println(Runtime.getRuntime().availableProcessors());
         for (int i = 0; i < 1000; i++) {
             long clock = System.currentTimeMillis();
-            hive.fellowBrothers(shortestWays);
+            hive.fellowBrothers();
+            System.out.println("Shortest distance: " + (graph.getFirstShortestWay()+graph.getSecondShortestWay()) + "km");
+            System.out.println("First way: " + graph.getFirstShortestWay() + "km");
+            System.out.println("Second way: " + graph.getSecondShortestWay() + "km");
             System.out.println("Time on operation " + (System.currentTimeMillis() - clock) + "ms\n\n");
         }
-        graph.setFirstShortestWay(shortestWays[0]);
-        graph.setSecondShortestWay(shortestWays[1]);
 
     }
+    private static int getNodeByName(String name, ArrayList<Node> nodes){
+        return nodes.stream()
+                .filter(item -> item.getName().equals(name))
+                .toList().get(0).getGraphIndex();
+    };
 }
+

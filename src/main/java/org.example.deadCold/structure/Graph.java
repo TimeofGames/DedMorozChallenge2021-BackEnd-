@@ -1,6 +1,7 @@
 package org.example.deadCold.structure;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -10,14 +11,17 @@ public class Graph {
     private final ArrayList<Node> nodes;
     private double firstShortestWay;
     private double secondShortestWay;
+    private int[] shortestWay;
+    private final int nodeToDuple;
 
     public Graph(ArrayList<Node> nodes, Expression distanceFounder, int nodeToDuple) {
         this.nodes = nodes;
-        generateMatrix(distanceFounder, nodeToDuple);
+        this.nodeToDuple = nodeToDuple;
+        generateMatrix(distanceFounder);
         cookDistanceDesire();
     }
 
-    private void generateMatrix(Expression distanceFounder, int nodeToDuple) {
+    private void generateMatrix(Expression distanceFounder) {
         double pheromone = 1;
         this.matrix = new ArrayList<>();
         for (Node value : this.nodes) {
@@ -58,7 +62,7 @@ public class Graph {
             }
             matrix.append("\n");
         }
-        return "matrix = " + matrix + "FirstShortestWay = " + firstShortestWay + ' ' + "SecondShortestWay = " + secondShortestWay;
+        return "matrix = " + matrix + "FirstShortestWay = " + firstShortestWay + ' ' + "SecondShortestWay = " + secondShortestWay + "ShortestWay = " + Arrays.toString(shortestWay);
     }
 
 
@@ -100,5 +104,17 @@ public class Graph {
 
     public void setMultiDistanceDesire(List<List<Double>> multiDistanceDesire) {
         this.multiDistanceDesire = multiDistanceDesire;
+    }
+
+    public void setShortestWay(int[] shortestWay) {
+        this.shortestWay = shortestWay;
+    }
+
+    public int[] getShortestWay() {
+        return shortestWay;
+    }
+
+    public int getNodeToDuple() {
+        return nodeToDuple;
     }
 }

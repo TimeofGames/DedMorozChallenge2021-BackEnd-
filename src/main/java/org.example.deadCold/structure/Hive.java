@@ -9,24 +9,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class Hive {
-    public List<List<MatrixItem>> graph;
-    public List<List<Double>> multiDistanceDesire;
+    public Graph graph;
     private int[] shortestWay;
-    private final ArrayList<Node> nodeArray;
-    private int nodeToDuple;
 
-    public Hive(List<List<MatrixItem>> graph, ArrayList<Node> nodeArray, int nodeToDuple, List<List<Double>> multiDistanceDesire) {
+    public Hive(Graph graph) {
         this.graph = graph;
-        this.nodeArray = nodeArray;
-        this.nodeToDuple = nodeToDuple;
-        this.multiDistanceDesire = multiDistanceDesire;
-        shortestWay = new int[nodeArray.size()];
-        for (int i = 0; i < nodeArray.size(); i++) {
+        shortestWay = new int[graph.getNodes().size()];
+        for (int i = 0; i < graph.getNodes().size(); i++) {
             shortestWay[i] = i;
         }
     }
 
-    public void fellowBrothers(double[] shortestWays) throws Exception {
+    public void fellowBrothers() throws Exception {
         List<Double> waysDistance;
         ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<int[]> antsWays = getAntsWays(service);
@@ -39,29 +33,33 @@ public class Hive {
         minDistance(antsWays.get(minDistanceThread(waysDistance)));
         updatePheromone(service, antsWays, waysDistance);
         service.shutdown();
-        System.out.println("Shortest distance " + getDistance(graph, shortestWay) + "km");
+        graph.setShortestWay(shortestWay);
         double[] lengthsOfWays = getLengthsOfWays();
-        System.out.println("First way: " + lengthsOfWays[0] + "km\n" +"Second way: " + lengthsOfWays[1] + "km");
+        graph.setFirstShortestWay(lengthsOfWays[0]);
+        graph.setSecondShortestWay(lengthsOfWays[1]);
     }
 
     private void putPheromoneElite(int[] antWay, double wayDistance) {
         double PHEROMONE_FACTOR = 100000;
         double pheromone = PHEROMONE_FACTOR / wayDistance;
         for (int i = 1; i < antWay.length; i++) {
-            graph.get(antWay[i - 1]).get(antWay[i]).pheromone += pheromone;
-            }
+            graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone += pheromone;
+            graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone += pheromone;
         }
+    }
 
-    private void putPheromone(ExecutorService service, List<int[]> antsWays, List<Double> waysDistance) throws InterruptedException {
-        List<UpdatePheromoneThread> updatePheromoneTasks = new ArrayList<UpdatePheromoneThread>();
-        double shortestWay = getDistance(graph,this.shortestWay);
+    private void putPheromone(ExecutorService service, List<int[]> antsWays, List<Double> waysDistance) throws
+            InterruptedException {
+        List<PutPheromoneThread> updatePheromoneTasks = new ArrayList<PutPheromoneThread>();
+        double shortestWay = getDistance(graph, this.shortestWay);
         for (int i = 0; i < antsWays.size(); i++) {
-            updatePheromoneTasks.add(new UpdatePheromoneThread(antsWays.get(i), waysDistance.get(i), graph, shortestWay));
+            updatePheromoneTasks.add(new PutPheromoneThread(antsWays.get(i), waysDistance.get(i), graph, shortestWay));
         }
         service.invokeAll(updatePheromoneTasks);
     }
 
-    private void updatePheromone(ExecutorService service, List<int[]> antsWays, List<Double> waysDistance) throws InterruptedException {
+    private void updatePheromone(ExecutorService service, List<int[]> antsWays, List<Double> waysDistance) throws
+            InterruptedException {
         evaporation();
         putPheromone(service, antsWays, waysDistance);
         putPheromoneElite(shortestWay, getDistance(graph, shortestWay));
@@ -69,10 +67,10 @@ public class Hive {
 
     private List<int[]> getAntsWays(ExecutorService service) throws InterruptedException {
         ArrayList<AntThread> ants = new ArrayList<AntThread>();
-        int size = nodeArray.size();
+        int size = graph.getNodes().size();
         List<Future<int[]>> antsWaysFuture;
         for (int i = 0; i < size; i++) {
-            ants.add(new AntThread(graph, nodeArray, i, multiDistanceDesire));
+            ants.add(new AntThread(graph, i));
         }
         antsWaysFuture = service.invokeAll(ants);
 
@@ -85,33 +83,33 @@ public class Hive {
         double[] lengthsOfWays = new double[2];
         double length = 0;
         int i = 0;
-        while (shortestWay[i] != 133 && shortestWay[i] != 1113) {
+        while (shortestWay[i] != graph.getNodeToDuple() && shortestWay[i] != graph.getNodes().size()) {
             i++;
         }
         i++;
         for (; i < shortestWay.length; i++) {
-            if (shortestWay[i] != 133 && shortestWay[i] != 1113) {
-                length += graph.get(shortestWay[i - 1]).get(shortestWay[i]).distance;
+            if (shortestWay[i] != graph.getNodeToDuple() && shortestWay[i] != graph.getNodes().size()) {
+                length += graph.getMatrix().get(shortestWay[i - 1]).get(shortestWay[i]).distance;
             } else {
                 break;
             }
         }
         lengthsOfWays[0] = length;
-        lengthsOfWays[1] = getDistance(graph,shortestWay)-length;
+        lengthsOfWays[1] = getDistance(graph, shortestWay) - length;
         return lengthsOfWays;
     }
 
-    private static double getDistance(List<List<MatrixItem>> graph, int[] way) {
+    private static double getDistance(Graph graph, int[] way) {
         double sumWays = 0;
         for (int i = 1; i < way.length; i++) {
-            sumWays += graph.get(way[i - 1]).get(way[i]).distance;
+            sumWays += graph.getMatrix().get(way[i - 1]).get(way[i]).distance;
         }
         return sumWays;
     }
 
     private void evaporation() {
-        final double AFTER_EVAPORATION = 0.64;
-        graph.stream()
+        final double AFTER_EVAPORATION = 0.5;
+        graph.getMatrix().stream()
                 .parallel()
                 .forEach(row -> row.forEach(item -> {
                     if (item.pheromone > 10) {
