@@ -22,7 +22,8 @@ public class Hive {
 
     public void fellowBrothers() throws Exception {
         List<Double> waysDistance;
-        ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        //ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService service = Executors.newFixedThreadPool(5);
         List<int[]> antsWays = getAntsWays(service);
 
         waysDistance = antsWays.stream()
@@ -40,11 +41,19 @@ public class Hive {
     }
 
     private void putPheromoneElite(int[] antWay, double wayDistance) {
-        double PHEROMONE_FACTOR = 100000;
+        double PHEROMONE_FACTOR = 10000;
         double pheromone = PHEROMONE_FACTOR / wayDistance;
         for (int i = 1; i < antWay.length; i++) {
-            graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone += pheromone;
-            graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone += pheromone;
+            if (graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone < 1000) {
+                graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone += pheromone;
+            } else {
+                graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone = 1000;
+            }
+            if (graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone < 1000) {
+                graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone += pheromone;
+            } else {
+                graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone = 1000;
+            }
         }
     }
 
@@ -108,14 +117,14 @@ public class Hive {
     }
 
     private void evaporation() {
-        final double AFTER_EVAPORATION = 0.5;
+        final double AFTER_EVAPORATION = 0.70;
         graph.getMatrix().stream()
                 .parallel()
                 .forEach(row -> row.forEach(item -> {
-                    if (item.pheromone > 10) {
+                    if (item.pheromone > 20) {
                         item.pheromone = item.pheromone * AFTER_EVAPORATION;
                     } else {
-                        item.pheromone = 10;
+                        item.pheromone = 20;
                     }
                 }));
     }

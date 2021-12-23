@@ -14,13 +14,14 @@ public class Ant {
     public Ant(List<List<MatrixItem>> graph, ArrayList<Node> nodeArray, List<List<Double>> multiDistanceDesire) {
         this.graph = graph;
         this.visits = new int[nodeArray.size()];
-        this.way = new int[graph.size()];
+        this.way = new int[graph.size()+1];
         this.nodeArray = nodeArray;
         this.multiDistanceDesire = multiDistanceDesire;
     }
 
     public int[] run(int startPoint) {
         int k = startPoint;
+        way[graph.size()] = k;
         for (int i = 0; i < this.visits.length; i++) {
             visits[k] = 1;
             way[i] = k;
@@ -30,7 +31,7 @@ public class Ant {
     }
 
     private double[] getDesire(List<MatrixItem> line, List<Double> multiDistanceDesire) {
-        final int POW_PHEROMONE = 2;
+        final int POW_PHEROMONE = 5;
         int size = nodeArray.size();
         double[] desires = new double[size];
         for (int i = 0; i < size; i++) {

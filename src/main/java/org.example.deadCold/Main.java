@@ -8,6 +8,7 @@ import org.example.deadCold.structure.*;
 
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ public class Main {
         int nodeToDuple = getNodeByName("Великий Устюг", arrayNodes);
         graph = new Graph(arrayNodes, new DistanceFounder(), nodeToDuple);
         Hive hive = new Hive(graph);
-        System.out.println(Runtime.getRuntime().availableProcessors());
         for (int i = 0; i < 1000; i++) {
             long clock = System.currentTimeMillis();
             hive.fellowBrothers();
@@ -39,6 +39,10 @@ public class Main {
             System.out.println("First way: " + graph.getFirstShortestWay() + "km");
             System.out.println("Second way: " + graph.getSecondShortestWay() + "km");
             System.out.println("Time on operation " + (System.currentTimeMillis() - clock) + "ms\n\n");
+            FileWriter fileWriter = new FileWriter("data" + i + ".json", false);
+            fileWriter.write(PreparationOfInformation.cookData(graph).toJSONString());
+            fileWriter.flush();
+            fileWriter.close();
         }
 
     }

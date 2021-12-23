@@ -19,14 +19,22 @@ public class PutPheromoneThread implements Callable<Object> {
     @Override
     public Object call() {
         double PHEROMONE_FACTOR = 10000;
-        double pheromone = PHEROMONE_FACTOR / (Math.E/Math.exp(shortestWay/wayDistance));
+        double pheromone = PHEROMONE_FACTOR / wayDistance / Math.exp(Math.pow((shortestWay / wayDistance),2));
         for (int j = 1; j < antWay.length; j++) {
             synchronized (graph.getMatrix().get(antWay[j - 1]).get(antWay[j])) {
-                graph.getMatrix().get(antWay[j - 1]).get(antWay[j]).pheromone += pheromone;
+                if (graph.getMatrix().get(antWay[j - 1]).get(antWay[j]).pheromone < 1000) {
+                    graph.getMatrix().get(antWay[j - 1]).get(antWay[j]).pheromone += pheromone;
+                } else {
+                    graph.getMatrix().get(antWay[j - 1]).get(antWay[j]).pheromone = 1000;
                 }
+            }
             synchronized (graph.getMatrix().get(antWay[j]).get(antWay[j - 1])) {
-                graph.getMatrix().get(antWay[j]).get(antWay[j - 1]).pheromone += pheromone;
+                if (graph.getMatrix().get(antWay[j]).get(antWay[j - 1]).pheromone < 1000) {
+                    graph.getMatrix().get(antWay[j]).get(antWay[j - 1]).pheromone += pheromone;
+                } else {
+                    graph.getMatrix().get(antWay[j]).get(antWay[j - 1]).pheromone = 1000;
                 }
+            }
         }
         return null;
     }

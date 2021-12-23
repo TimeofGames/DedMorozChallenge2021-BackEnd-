@@ -22,7 +22,7 @@ public class Graph {
     }
 
     private void generateMatrix(Expression distanceFounder) {
-        double pheromone = 1;
+        double pheromone = 1000;
         this.matrix = new ArrayList<>();
         for (Node value : this.nodes) {
             ArrayList<MatrixItem> localList = new ArrayList<>();
@@ -42,8 +42,8 @@ public class Graph {
     }
 
     private void cookDistanceDesire() {
-        final int POW_DISTANCE = 3;
-        final int DISTANCE_FACTOR = 10;
+        final double POW_DISTANCE = 5;
+        final int DISTANCE_FACTOR = 1;
         for (int i = 0; i < matrix.size(); i++) {
             List<Double> localList = new ArrayList<>();
             for (int j = 0; j < matrix.size(); j++) {

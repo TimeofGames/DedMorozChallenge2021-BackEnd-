@@ -24,20 +24,7 @@ public class SocketServer {
     }
 
     public void sendData(Graph graph) throws IOException {
-        JSONObject objectToOut = new JSONObject();
-        List<List<MatrixItem>> matrix = graph.getMatrix();
-        List<List<Double>> matrixToOut = new ArrayList<>();
-
-        for (int i = 0;i<matrix.size();i++){
-            List<Double> localArray = new ArrayList<>();
-            for (int j = 0;j<matrix.size();j++){
-                localArray.add(matrix.get(i).get(j).pheromone);
-            }
-            matrixToOut.add(localArray);
-        }
-        objectToOut.put("Matrix", matrixToOut);
-        objectToOut.put("FirstShortestWay",graph.getFirstShortestWay());
-        objectToOut.put("SecondShortestWay",graph.getSecondShortestWay());
+        JSONObject objectToOut = PreparationOfInformation.cookData(graph);
         PrintStream stream = new PrintStream(clientSocket.getOutputStream());
         System.out.println(objectToOut);
         stream.println(objectToOut);
