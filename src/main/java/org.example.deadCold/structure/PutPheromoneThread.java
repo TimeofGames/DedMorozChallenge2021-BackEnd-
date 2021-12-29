@@ -18,21 +18,20 @@ public class PutPheromoneThread implements Callable<Object> {
 
     @Override
     public Object call() {
-        double PHEROMONE_FACTOR = 10000;
-        double pheromone = PHEROMONE_FACTOR / wayDistance / Math.exp(Math.pow((shortestWay / wayDistance),2));
+        double pheromone = RouteConstants.PHEROMONE_FACTOR / wayDistance ;
         for (int j = 1; j < antWay.length; j++) {
             synchronized (graph.getMatrix().get(antWay[j - 1]).get(antWay[j])) {
-                if (graph.getMatrix().get(antWay[j - 1]).get(antWay[j]).pheromone < 1000) {
+                if (graph.getMatrix().get(antWay[j - 1]).get(antWay[j]).pheromone < RouteConstants.PHEROMONE) {
                     graph.getMatrix().get(antWay[j - 1]).get(antWay[j]).pheromone += pheromone;
                 } else {
-                    graph.getMatrix().get(antWay[j - 1]).get(antWay[j]).pheromone = 1000;
+                    graph.getMatrix().get(antWay[j - 1]).get(antWay[j]).pheromone = RouteConstants.PHEROMONE;
                 }
             }
             synchronized (graph.getMatrix().get(antWay[j]).get(antWay[j - 1])) {
-                if (graph.getMatrix().get(antWay[j]).get(antWay[j - 1]).pheromone < 1000) {
+                if (graph.getMatrix().get(antWay[j]).get(antWay[j - 1]).pheromone < RouteConstants.PHEROMONE) {
                     graph.getMatrix().get(antWay[j]).get(antWay[j - 1]).pheromone += pheromone;
                 } else {
-                    graph.getMatrix().get(antWay[j]).get(antWay[j - 1]).pheromone = 1000;
+                    graph.getMatrix().get(antWay[j]).get(antWay[j - 1]).pheromone = RouteConstants.PHEROMONE;
                 }
             }
         }

@@ -31,12 +31,11 @@ public class Ant {
     }
 
     private double[] getDesire(List<MatrixItem> line, List<Double> multiDistanceDesire) {
-        final int POW_PHEROMONE = 5;
         int size = nodeArray.size();
         double[] desires = new double[size];
         for (int i = 0; i < size; i++) {
             if (visits[i] == 0 && line.get(i).distance != 0) {
-                desires[i] = Math.pow(line.get(i).pheromone, POW_PHEROMONE) * multiDistanceDesire.get(i);
+                desires[i] = Math.pow(line.get(i).pheromone, RouteConstants.POW_PHEROMONE) * multiDistanceDesire.get(i);
             }
         }
         return desires;

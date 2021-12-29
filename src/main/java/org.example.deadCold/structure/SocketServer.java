@@ -5,8 +5,6 @@ import org.json.simple.JSONObject;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SocketServer {
     private Socket clientSocket;
@@ -19,15 +17,14 @@ public class SocketServer {
     private void start() throws IOException {
         server = new ServerSocket(5050, 1);
         System.out.println("Сервер запущен");
-        clientSocket = server.accept();
-        System.out.println("Подключён: "+ clientSocket.getInetAddress());
     }
 
-    public void sendData(Graph graph) throws IOException {
-        JSONObject objectToOut = PreparationOfInformation.cookData(graph);
-        PrintStream stream = new PrintStream(clientSocket.getOutputStream());
-        System.out.println(objectToOut);
-        stream.println(objectToOut);
+    public void sendData(JSONObject data) throws IOException {
+        clientSocket = server.accept();
+        System.out.println(clientSocket.getInetAddress());
+        JSONObject objectToOut = data;
+        OutputStreamWriter stream = new OutputStreamWriter(clientSocket.getOutputStream());
+        stream.write(String.valueOf(objectToOut));
         stream.flush();
         stream.close();
     }

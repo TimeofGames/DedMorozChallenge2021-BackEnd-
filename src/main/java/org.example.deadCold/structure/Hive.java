@@ -12,18 +12,14 @@ public class Hive {
     public Graph graph;
     private int[] shortestWay;
 
-    public Hive(Graph graph) {
+    public Hive(Graph graph, int[] shortestWay) {
         this.graph = graph;
-        shortestWay = new int[graph.getNodes().size()];
-        for (int i = 0; i < graph.getNodes().size(); i++) {
-            shortestWay[i] = i;
-        }
+        this.shortestWay = shortestWay;
     }
 
-    public void fellowBrothers() throws Exception {
+    public void run() throws Exception {
         List<Double> waysDistance;
-        //ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        ExecutorService service = Executors.newFixedThreadPool(5);
+        ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<int[]> antsWays = getAntsWays(service);
 
         waysDistance = antsWays.stream()
@@ -41,18 +37,17 @@ public class Hive {
     }
 
     private void putPheromoneElite(int[] antWay, double wayDistance) {
-        double PHEROMONE_FACTOR = 10000;
-        double pheromone = PHEROMONE_FACTOR / wayDistance;
+        double pheromone = RouteConstants.PHEROMONE_FACTOR_ELITE / wayDistance;
         for (int i = 1; i < antWay.length; i++) {
-            if (graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone < 1000) {
+            if (graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone < RouteConstants.PHEROMONE) {
                 graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone += pheromone;
             } else {
-                graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone = 1000;
+                graph.getMatrix().get(antWay[i - 1]).get(antWay[i]).pheromone = RouteConstants.PHEROMONE;
             }
-            if (graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone < 1000) {
+            if (graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone < RouteConstants.PHEROMONE) {
                 graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone += pheromone;
             } else {
-                graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone = 1000;
+                graph.getMatrix().get(antWay[i]).get(antWay[i - 1]).pheromone = RouteConstants.PHEROMONE;
             }
         }
     }
@@ -117,14 +112,14 @@ public class Hive {
     }
 
     private void evaporation() {
-        final double AFTER_EVAPORATION = 0.70;
+        final double AFTER_EVAPORATION = 0.60;
         graph.getMatrix().stream()
                 .parallel()
                 .forEach(row -> row.forEach(item -> {
-                    if (item.pheromone > 20) {
+                    if (item.pheromone > 5) {
                         item.pheromone = item.pheromone * AFTER_EVAPORATION;
                     } else {
-                        item.pheromone = 20;
+                        item.pheromone = 5;
                     }
                 }));
     }

@@ -1,7 +1,6 @@
 package org.example.deadCold;
 
 import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 
 
 import org.example.deadCold.structure.*;
@@ -9,16 +8,12 @@ import org.example.deadCold.structure.*;
 
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
 
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        CSVReader reader = new CSVReader(new FileReader("src\\data\\Cities.csv"));
+        CSVReader reader = new CSVReader(new FileReader("src\\data\\Cities_v.csv"));
         reader.readNext();
         Graph graph;
         String[] nextLine;
@@ -28,21 +23,22 @@ public class Main {
             arrayNodes.add(i, new Node(nextLine, i));
         }
 
-
         int nodeToDuple = getNodeByName("Великий Устюг", arrayNodes);
         graph = new Graph(arrayNodes, new DistanceFounder(), nodeToDuple);
-        Hive hive = new Hive(graph);
+        Hive hive = new Hive(graph, graph.getShortestWay());
+        //SocketServer server = new SocketServer();
         for (int i = 0; i < 1000; i++) {
             long clock = System.currentTimeMillis();
-            hive.fellowBrothers();
+            hive.run();
             System.out.println("Shortest distance: " + (graph.getFirstShortestWay()+graph.getSecondShortestWay()) + "km");
             System.out.println("First way: " + graph.getFirstShortestWay() + "km");
             System.out.println("Second way: " + graph.getSecondShortestWay() + "km");
             System.out.println("Time on operation " + (System.currentTimeMillis() - clock) + "ms\n\n");
             FileWriter fileWriter = new FileWriter("data" + i + ".json", false);
-            fileWriter.write(PreparationOfInformation.cookData(graph).toJSONString());
+            fileWriter.write(PreparationOfInformation.preparationDataToFile(graph).toJSONString());
             fileWriter.flush();
             fileWriter.close();
+            //server.sendData(PreparationOfInformation.preparationData(graph));
         }
 
     }
